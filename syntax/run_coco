@@ -1,0 +1,11 @@
+../../Coco/Coco ./gn.atg -trace FP -o . -namespace Gn > ./coco_out.txt
+
+
+mv ./Parser.h ../GnParser.h
+mv ./Parser.cpp ../GnParser.cpp
+
+mv ./GnSynTree.h ..
+mv ./GnSynTree.cpp ..
+
+mv ./GnTokenType.h ..
+mv ./GnTokenType.cpp ..
