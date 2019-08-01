@@ -1,6 +1,6 @@
 ## Welcome to the GN parser and code model/browser
 
-This is parser, code model and browser for the GN meta-build system written in C++ and Qt. See https://gn.googlesource.com/gn for more information about GN. The syntax was retrieved using the command `gn help grammar` and modified for Coco/R compatibility using https://github.com/rochus-keller/EbnfStudio. 
+This is a parser, code model and browser for the GN meta-build system written in C++ and Qt. See https://gn.googlesource.com/gn for more information about GN. The syntax was retrieved using the command `gn help grammar` and modified for Coco/R compatibility using https://github.com/rochus-keller/EbnfStudio. 
 
 The goal of this project is to build tools to better understand the GN meta-build system used by the Google Dart SDK. My real goal is to understand the Dart Runtime and to be able to integrate Dart as an embedded language into a system I am currently planning. Dart, like the Chromium and V8 projects, uses the GN meta-build system. This build system is very powerful, but also very complex. GN has useful documentation and commands for analyzing a project. But with a build system as big as the one of the Dart SDK, I still lose sight when only using command line tools (there were moments when I began to wonder if "GN" was meant as an abbreviation for "go nuts"). That was the primary reason why I implemented a parser/code model integrated with a navigable GUI based code browser myself. I hope it will be useful for others as well.
 
