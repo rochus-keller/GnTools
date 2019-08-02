@@ -1010,58 +1010,6 @@ void CodeModel::stringVar_(SynTree* st, CodeModel::Scope* sc, int pos, int len)
             break;
         }
     }
-
-#if 0
-    const QByteArray str = st->d_tok.d_val.mid(pos,len);
-    if( str.contains('.') )
-    {
-        QByteArrayList parts = str.split('.');
-        if( parts.size() != 2 )
-        {
-            d_errs->error(Errors::Syntax,st,tr("invalid ScopeAccess embedded in string") );
-            return;
-        }
-        // TODO: braucht es hier echten ScopeAccess?
-        if( !Lexer::isValidIdent(parts[0]) )
-        {
-            d_errs->error(Errors::Syntax,st,tr("invalid ident embedded in string") );
-            return;
-        }
-        SynTree* sub = new SynTree(st->d_tok);
-        sub->d_tok.d_type = Tok_identifier;
-        sub->d_tok.d_colNr += pos;
-        sub->d_tok.d_len = parts[0].size();
-        sub->d_tok.d_val = Lexer::getSymbol( parts[0] );
-        st->d_children.append(sub);
-        varRhs( sub, sc );
-        if( !Lexer::isValidIdent(parts[1]) )
-        {
-            d_errs->error(Errors::Syntax,st,tr("invalid ident embedded in string") );
-            return;
-        }
-        sub = new SynTree(st->d_tok);
-        sub->d_tok.d_type = Tok_identifier;
-        sub->d_tok.d_colNr += pos + parts[0].size() + 1;
-        sub->d_tok.d_len = parts[1].size();
-        sub->d_tok.d_val = Lexer::getSymbol( parts[0] );
-        st->d_children.append(sub);
-
-    }else
-    {
-        if( !Lexer::isValidIdent(str) )
-        {
-            d_errs->error(Errors::Syntax,st,tr("invalid ident embedded in string") );
-            return;
-        }
-        SynTree* sub = new SynTree(st->d_tok);
-        sub->d_tok.d_type = Tok_identifier;
-        sub->d_tok.d_colNr += pos;
-        sub->d_tok.d_len = len;
-        sub->d_tok.d_val = Lexer::getSymbol( str );
-        st->d_children.append(sub);
-        varRhs( sub, sc );
-    }
-#endif
 }
 
 void CodeModel::namedObj_(SynTree* st, CodeModel::Scope* sc, const QByteArray& kind )

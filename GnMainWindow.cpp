@@ -369,6 +369,7 @@ void MainWindow::fillXrefList(const QByteArray& str, const SynTree* id )
     QFont bold = d_xrefList->font();
     bold.setBold(true);
 
+    QList<const SynTree*> nt;
     CodeModel::ObjRefs::const_iterator i1 = d_mdl->getAllObjDefs().find(name.constData());
     if( i1 != d_mdl->getAllObjDefs().end() )
     {
@@ -395,6 +396,8 @@ void MainWindow::fillXrefList(const QByteArray& str, const SynTree* id )
             item->setData( 0, Qt::UserRole, QVariant::fromValue(s) );
             if( s == id )
                 item->setFont(0,bold);
+            else if( s->d_tok.d_sourcePath.constData() == d_codeView->getSourcePath().constData() )
+                nt.append(s);
         }
     }
     i2 = d_mdl->getAllLhs().find(name.constData());
@@ -409,6 +412,8 @@ void MainWindow::fillXrefList(const QByteArray& str, const SynTree* id )
             item->setData( 0, Qt::UserRole, QVariant::fromValue(s) );
             if( s == id )
                 item->setFont(0,bold);
+            else if( s->d_tok.d_sourcePath.constData() == d_codeView->getSourcePath().constData() )
+                nt.append(s);
         }
     }
     i2 = d_mdl->getAllRhs().find(name.constData());
@@ -423,6 +428,8 @@ void MainWindow::fillXrefList(const QByteArray& str, const SynTree* id )
             item->setData( 0, Qt::UserRole, QVariant::fromValue(s) );
             if( s == id )
                 item->setFont(0,bold);
+            else if( s->d_tok.d_sourcePath.constData() == d_codeView->getSourcePath().constData() )
+                nt.append(s);
         }
     }
     if( !path.isEmpty() )
@@ -442,18 +449,7 @@ void MainWindow::fillXrefList(const QByteArray& str, const SynTree* id )
             }
         }
     }
-   /*
-    if( id )
-    {
-        QTextCursor tc = d_view->textCursor();
-        const int line = tc.blockNumber() + 1;
-        const int col = positionInBlock(tc) + 1;
-        d_view->markNonTerms(part);
-        d_loc->setText( QString("%1   %2:%3   %5 '%4'").arg(d_view->d_path).arg(line).arg(col)
-                        .arg(id->d_tok.d_val.data() ).arg(nt->typeName().data() ) );
-        pushLocation(id);
-    }
-    */
+    d_codeView->markNonTerms(nt);
 }
 
 void MainWindow::addQueryResults(const MainWindow::Sorter& sorter)
@@ -497,14 +493,10 @@ void MainWindow::onCursorPositionChanged()
     QTextCursor cur = d_codeView->textCursor();
     const int line = cur.blockNumber() + 1;
     const int col = cur.positionInBlock() + 1;
-    //d_view->d_cur = d_mdl->findSymbolBySourcePos(d_view->d_sourcePath,line,col);
     if( d_codeView->getCur() )
     {
-        //d_view->pushLocation(d_view->d_cur);
-        //fillUsedBy( id.first, id.second );
         d_sourceLoc->setText( QString("%1   %2:%3   %4").arg(d_codeView->getSourcePath().constData()).
                         arg(line).arg(col).arg( SynTree::rToStr(d_codeView->getCur()->d_tok.d_type) ) );
-
     }else
         d_sourceLoc->setText( QString("%1   %2:%3").arg(d_codeView->getSourcePath().constData()).arg(line).arg(col) );
 

@@ -236,24 +236,11 @@ void CodeBrowser::setCursorPosition(int line, int col, bool center, int sel)
     }
 }
 
-void CodeBrowser::markNonTermsFromCursor()
-{
-    QTextCursor cur = textCursor();
-    /*
-    CodeModel::IdentUse id = d_mdl->findSymbolBySourcePos(d_path,cur.blockNumber() + 1,positionInBlock(cur) + 1);
-    if( id.first )
-    {
-        QList<const SynTree*> syms = d_mdl->findReferencingSymbols( id.second, d_path );
-        markNonTerms(syms);
-    }
-    */
-}
-
 void CodeBrowser::markNonTerms(const QList<const SynTree*>& s)
 {
     d_nonTerms.clear();
     QTextCharFormat format;
-    format.setBackground( QColor(247,245,243).darker(120) );
+    format.setBackground( QColor(247,245,243).darker(110) );
     foreach( const SynTree* n, s )
     {
         QTextCursor c( document()->findBlockByNumber( n->d_tok.d_lineNr - 1) );
