@@ -720,6 +720,56 @@ CodeModel::Dollars CodeModel::findDollars(const QByteArray& str)
     return res;
 }
 
+static inline char get( const QByteArray& str, int i )
+{
+    if( i < str.size() )
+        return str[i];
+    else
+        return 0;
+}
+
+static inline bool looksLikeImplicitNamePath( const QByteArray& str )
+{
+    Q_ASSERT( !str.contains(':') );
+    if( str.isEmpty() )
+        return false;
+
+    int i = 0;
+    if( str[i] == '"' )
+        i++;
+    int lastSlash = -1;
+    if( get(str,i) == '/' ) // starts with "/"
+    {
+        lastSlash = i;
+        i++;
+        if( get(str,i) == '/' ) // starts with "//"
+        {
+            lastSlash = i;
+            i++;
+        }
+    }
+    while( i < str.size() )
+    {
+        const char c = get(str,i);
+        if( c == '\\' )
+            return false;
+        else if( c == '/' )
+        {
+            if( lastSlash != -1 && i - lastSlash == 0 ) // embedded "//"
+                return false;
+            lastSlash = i;
+        }
+        i++;
+    }
+    i = str.size() - 1;
+    if( get(str,i) == '"' )
+        i--;
+    if( lastSlash == i )
+        return false; // ends with "/"
+    // now check whether the last part has a suffix
+    return str.indexOf( '.', lastSlash + 1 ) == -1;
+}
+
 CodeModel::PathIdentPair CodeModel::extractPathIdentFromString(QByteArray str)
 {
     if( str.isEmpty() )
@@ -727,7 +777,21 @@ CodeModel::PathIdentPair CodeModel::extractPathIdentFromString(QByteArray str)
 
     const int pos1 = str.indexOf(':');
     if( pos1 == -1 )
-        return PathIdentPair(str,QByteArray()); // path only
+    {
+        // allow for implicit names
+        if( looksLikeImplicitNamePath(str) )
+        {
+            QByteArray name;
+            const int pos = str.lastIndexOf('/');
+            if( pos != -1 )
+                name = str.mid(pos+1);
+            //else
+                // name = str; // TODO: we require at least one "/" which might be too strict
+            return PathIdentPair(str,name);
+       }
+       // else
+       return PathIdentPair(str,QByteArray()); // path only
+    }
     if( str.indexOf(':', pos1+1 ) != -1 )
         return PathIdentPair(); // invalid format
 

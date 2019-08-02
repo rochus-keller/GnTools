@@ -111,7 +111,7 @@ namespace Gn
         };
         typedef QList<Dollar> Dollars;
         static Dollars findDollars( const QByteArray& str );
-        typedef QPair<QByteArray,QByteArray> PathIdentPair;
+        typedef QPair<QByteArray,QByteArray> PathIdentPair; // see 'gn help labels'
         static PathIdentPair extractPathIdentFromString( QByteArray str );
 
     protected:
