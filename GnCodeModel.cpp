@@ -256,7 +256,17 @@ QString CodeModel::calcPath(const QByteArray& path, const QByteArray& ref ) cons
         tmp = tmp; // NOP, absolute path
     else if( !tmp.isEmpty() && !ref.isEmpty() )
         tmp = QFileInfo(QString::fromUtf8(ref)).absoluteDir().absoluteFilePath(tmp);
+    else if( !tmp.isEmpty() )
+        tmp = d_sourceRoot.absoluteFilePath(tmp);
     return QFileInfo(tmp).canonicalFilePath();
+}
+
+QString CodeModel::calcPath(QByteArray path, const QByteArray& ref, bool addBUILDgn) const
+{
+    if( addBUILDgn )
+        path += QByteArray("/") + s_buildGn;
+
+    return calcPath(path,ref);
 }
 
 QString CodeModel::relativePath(const QByteArray& sourcePath) const
@@ -287,9 +297,7 @@ SynTree*CodeModel::findFromPath(const QByteArray& path, const QByteArray& caller
     QByteArray file = callerPath;
     if( !pip.first.isEmpty() )
     {
-        if( !pip.second.isEmpty() )
-            pip.first += QByteArray("/") + s_buildGn;
-        file = calcPath( pip.first, callerPath ).toUtf8();
+        file = calcPath( pip.first, callerPath, !pip.second.isEmpty() ).toUtf8();
         if( file.isEmpty() )
             return 0;
     }
@@ -1169,7 +1177,7 @@ CodeModel::Scope::~Scope()
         delete sc;
 }
 
-CodeModel::Scope*CodeModel::Scope::findObject(const QByteArray& name, bool recursive) const
+CodeModel::Scope*CodeModel::Scope::findObject(const QByteArray& name, bool recursive, bool imports) const
 {
     Scope* s = d_objectDefs.value(name.constData());
     if( s )
@@ -1178,12 +1186,15 @@ CodeModel::Scope*CodeModel::Scope::findObject(const QByteArray& name, bool recur
         s = d_outer->findObject(name,recursive);
     if( s )
         return s;
-    ScopeHash::const_iterator i;
-    for( i = d_relovedImports.begin(); i != d_relovedImports.end(); i++ )
+    if( imports )
     {
-        s = i.value()->findObject(name,recursive);
-        if( s )
-            return s;
+        ScopeHash::const_iterator i;
+        for( i = d_relovedImports.begin(); i != d_relovedImports.end(); i++ )
+        {
+            s = i.value()->findObject(name,recursive);
+            if( s )
+                return s;
+        }
     }
     return 0;
 }

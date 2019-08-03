@@ -58,10 +58,16 @@ bool CodeBrowser::loadFile(const QByteArray& path)
     if( d_sourcePath == path )
         return true;
     d_sourcePath = path;
+    d_cur = 0;
+    d_link.clear();
+    d_goto = 0;
+    d_nonTerms.clear();
+    d_find.clear();
     QFile in(QString::fromUtf8(d_sourcePath));
     if( !in.open(QIODevice::ReadOnly) )
         return false;
     setPlainText( QString::fromLatin1(in.readAll()) );
+    moveCursor(QTextCursor::Start);
     emit sigShowFile(path);
     return true;
 }
@@ -134,7 +140,7 @@ void CodeBrowser::updateExtraSelections()
     ESL sum;
 
     QTextEdit::ExtraSelection line;
-    line.format.setBackground(QColor(Qt::yellow).lighter(190));
+    line.format.setBackground(QColor(Qt::yellow).lighter(180));
     line.format.setProperty(QTextFormat::FullWidthSelection, true);
     line.cursor = textCursor();
     line.cursor.clearSelection();
@@ -227,6 +233,28 @@ void CodeBrowser::setCursorPosition(int line, int col, bool center, int sel)
         cur.setPosition( block.position() + col );
         if( sel > 0 )
             cur.setPosition( block.position() + col + sel, QTextCursor::KeepAnchor );
+        d_cur = d_mdl->findSymbolBySourcePos(d_sourcePath,line+1,col+1);
+        pushLocation( d_cur );
+        setTextCursor( cur );
+        if( center )
+            centerCursor();
+        else
+            ensureCursorVisible();
+        updateExtraSelections();
+    }
+}
+
+void CodeBrowser::setCursorPosition(const QByteArray& file, int line, int col, bool center)
+{
+    loadFile( file );
+    // Qt-Koordinaten
+    if( line >= 0 && line < document()->blockCount() )
+    {
+        QTextBlock block = document()->findBlockByNumber(line);
+        QTextCursor cur = textCursor();
+        cur.setPosition( block.position() + col );
+        d_cur = d_mdl->findSymbolBySourcePos(d_sourcePath,line+1,col+1);
+        pushLocation( d_cur );
         setTextCursor( cur );
         if( center )
             centerCursor();

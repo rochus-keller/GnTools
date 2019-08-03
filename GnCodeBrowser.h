@@ -41,6 +41,7 @@ namespace Gn
         void goForward();
         void setCursorPosition( SynTree* id, bool center, bool pushLoc = false );
         void setCursorPosition(int line, int col, bool center, int sel = -1 );
+        void setCursorPosition(const QByteArray& file, int line, int col, bool center );
         void markNonTerms(const QList<const SynTree*>& s);
         SynTree* getCur() const { return d_cur; }
         const QByteArray& getSourcePath() const { return d_sourcePath; }

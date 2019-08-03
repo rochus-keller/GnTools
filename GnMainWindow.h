@@ -79,6 +79,7 @@ namespace Gn
         void onShowFullscreen();
         void onQuery(int);
         void onQueryDblClicked();
+        void onGotoFileLine();
 
     private:
         CodeModel* d_mdl;

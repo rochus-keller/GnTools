@@ -135,6 +135,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     new QShortcut(tr("ALT+RIGHT"),this,SLOT(onGoForward()) );
     new QShortcut(tr("CTRL+Q"),this,SLOT(close()) );
     new QShortcut(tr("CTRL+L"),this,SLOT(onGotoLine()) );
+    new QShortcut(tr("CTRL+SHIFT+L"),this,SLOT(onGotoFileLine()) );
     new QShortcut(tr("CTRL+F"),this,SLOT(onFindInFile()) );
     new QShortcut(tr("CTRL+G"),this,SLOT(onFindAgain()) );
     new QShortcut(tr("F3"),this,SLOT(onFindAgain()) );
@@ -728,5 +729,71 @@ void MainWindow::onQueryDblClicked()
         d_codeView->setCursorPosition( st, true, true );
     else
         fillXrefList(d_queryResults->currentItem()->data(0,Qt::UserRole).toByteArray());
+}
+
+void MainWindow::onGotoFileLine()
+{
+    bool ok	= false;
+    QString res = QInputDialog::getText( this, tr("Goto File/Line"), tr("Path:Line:Col:"),
+                                                QLineEdit::Normal, QString(), &ok );
+    if( !ok || res.isEmpty() )
+        return;
+
+    // "//build/dart/dart_action.gni:101:3"
+
+    if( res.endsWith(QChar(':')) )
+        res.chop(1);
+
+    const int firstColon = res.indexOf(QChar(':'));
+    const int secondColon = firstColon != -1 ? res.indexOf(QChar(':'),firstColon+1) : -1;
+    CodeModel::PathIdentPair pip;
+    int row = 0, col = 0;
+    if( firstColon == -1 )
+        pip = CodeModel::extractPathIdentFromString(res.toUtf8()); // "//build/dart/dart_action.gni", "//runtime/bin"
+    else
+    {
+        pip.first = res.left(firstColon).toUtf8();
+        if( secondColon == -1 ) // "//runtime/bin:dart", "//build/dart/dart_action.gni:101"
+        {
+            row = res.mid(firstColon+1).toUInt(&ok);
+            if( !ok )
+                pip = CodeModel::extractPathIdentFromString(res.toUtf8());
+        }else
+        {
+            // "//build/dart/dart_action.gni:101:3"
+            row = res.mid(firstColon+1, secondColon - firstColon - 1).toUInt(&ok);
+            if( !ok )
+            {
+                logMessage(tr("ERR: invalid row") );
+                return;
+            }
+            col = res.mid(secondColon+1).toUInt(&ok);
+            if( !ok )
+            {
+                logMessage(tr("ERR: invalid col") );
+                return;
+            }
+        }
+    }
+
+    const QByteArray path = Lexer::getSymbol(
+                d_mdl->calcPath( pip.first, /*d_codeView->getSourcePath*/QByteArray(), !pip.second.isEmpty() ).toUtf8());
+    CodeModel::Scope* sc = d_mdl->getScope(path);
+    if( sc == 0 )
+    {
+        logMessage(tr("ERR: file not found") );
+        return;
+    }
+    if( !pip.second.isEmpty() )
+    {
+        sc = sc->findObject(Lexer::getSymbol(pip.second).constData(),false,false);
+        if( sc == 0 )
+        {
+            logMessage(tr("ERR: label not found in file") );
+            return;
+        }
+        d_codeView->setCursorPosition(sc->d_st,true,true);
+    }else
+        d_codeView->setCursorPosition( path, row-1, col-1, true );
 }
 

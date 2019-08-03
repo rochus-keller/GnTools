@@ -48,7 +48,7 @@ namespace Gn
             Scope():d_outer(0),d_st(0),d_params(0) {}
             ~Scope();
 
-            Scope* findObject( const QByteArray& name, bool recursive = true ) const;
+            Scope* findObject( const QByteArray& name, bool recursive = true, bool imports = true ) const;
 
             QByteArray d_kind;
             QByteArray d_name; // name or filepath symbol
@@ -78,6 +78,7 @@ namespace Gn
         bool parseDir( const QDir& );
         QString calcPath(SynTree* ref ) const;
         QString calcPath(const QByteArray& path , const QByteArray& ref) const;
+        QString calcPath(QByteArray path , const QByteArray& ref, bool addBUILDgn ) const;
         QString relativePath( const QByteArray& sourcePath ) const;
         SynTree* findSymbolBySourcePos(const QByteArray& sourcePath, quint32 line, quint16 col ) const;
         SynTree* findFromPath( const QByteArray& path, const QByteArray& callerPath = QByteArray() );
