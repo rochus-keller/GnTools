@@ -385,6 +385,7 @@ void CodeModel::clear()
     {
         delete i.value().d_st;
     }
+    d_files.clear();
     Lexer::clearSymbols();
     d_knownVars.clear();
     d_knownFuncs.clear();

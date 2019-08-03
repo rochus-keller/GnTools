@@ -176,7 +176,8 @@ void MainWindow::showPath(const QString& path)
         item->setToolTip(0,item->text(0));
         item->setData( 0, Qt::UserRole, file );
     }
-
+    setWindowTitle( tr("%3 - %1 v%2").arg( qApp->applicationName() ).arg( qApp->applicationVersion() )
+                    .arg( d_rootDir->text() ));
 }
 
 void MainWindow::showHelp()
