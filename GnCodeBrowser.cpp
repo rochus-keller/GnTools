@@ -212,14 +212,14 @@ void CodeBrowser::setCursorPosition(SynTree* id, bool center, bool pushLoc)
         QTextBlock block = document()->findBlockByNumber(line);
         QTextCursor cur = textCursor();
         cur.setPosition( block.position() + col );
+        if( pushLoc )
+            pushLocation( id );
         setTextCursor( cur );
+        updateExtraSelections();
         if( center )
             centerCursor();
         else
             ensureCursorVisible();
-        if( pushLoc )
-            pushLocation( id );
-        updateExtraSelections();
     }
 }
 

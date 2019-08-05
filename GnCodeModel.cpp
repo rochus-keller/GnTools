@@ -775,8 +775,21 @@ static inline bool looksLikeImplicitNamePath( const QByteArray& str )
         i--;
     if( lastSlash == i )
         return false; // ends with "/"
+//    if( lastSlash == -1 )
+//        return false; // no "/" at all
     // now check whether the last part has a suffix
-    return str.indexOf( '.', lastSlash + 1 ) == -1;
+    return str.indexOf( '.', lastSlash + 1 ) == -1; // true wenn kein '.' enthalten
+}
+
+bool CodeModel::looksLikeFilePath( const QByteArray& str )
+{
+    if( str.contains('/') )
+        return true;
+    if( str.contains('\\') )
+        return true;
+    if( str.contains('.') && !str.endsWith('.') )
+        return true;
+    return false;
 }
 
 CodeModel::PathIdentPair CodeModel::extractPathIdentFromString(QByteArray str)
@@ -797,9 +810,16 @@ CodeModel::PathIdentPair CodeModel::extractPathIdentFromString(QByteArray str)
             //else
                 // name = str; // TODO: we require at least one "/" which might be too strict
             return PathIdentPair(str,name);
-       }
-       // else
-       return PathIdentPair(str,QByteArray()); // path only
+        }
+        return PathIdentPair(str,QByteArray()); // path only
+#if 0   // no, if ':' is missing and no implicit path/name we always conclude path here
+        if( looksLikeFilePath(str) )
+            return PathIdentPair(str,QByteArray()); // path only
+        else if( str.contains(' ') )
+            return PathIdentPair(); // neither path nor name
+        else
+            return PathIdentPair(QByteArray(),str); // name only
+#endif
     }
     if( str.indexOf(':', pos1+1 ) != -1 )
         return PathIdentPair(); // invalid format

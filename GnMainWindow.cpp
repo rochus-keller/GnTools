@@ -56,6 +56,7 @@ static const char* s_queries[] =
     "RHS only vars",
     "Dynamic references",
     "Declared args",
+    "Refs with ambig Defs",
     0
 };
 
@@ -348,13 +349,16 @@ void MainWindow::fillXrefList(const QByteArray& str, const SynTree* id )
         pip.first = d_mdl->calcPath( pip.first, d_codeView->getSourcePath() ).toUtf8();
     else
     {
-        const QByteArray path = d_mdl->calcPath( pip.first, d_codeView->getSourcePath() ).toUtf8();
-        if( path.isEmpty() )
+        const QString path = d_mdl->calcPath( pip.first, d_codeView->getSourcePath() );
+        QFileInfo info(path);
+        if( info.exists() && !info.isDir() )
+            pip.first = path.toUtf8();
+        else if( !CodeModel::looksLikeFilePath(pip.first))
         {
             pip.second = pip.first;
             pip.first.clear();
         }else
-            pip.first = path;
+            return;
     }
 
 //        if( !Lexer::isValidIdent(name) )
@@ -712,6 +716,20 @@ void MainWindow::onQuery(int q)
             foreach( SynTree* s, d_mdl->getDeclaredArgs() )
             {
                 sorter.insert( s->d_tok.d_val, s->d_tok.d_val.constData() );
+            }
+            addQueryResults(sorter);
+        }
+        break;
+    case 7: // "Refs with ambig Defs"
+        {
+            CodeModel::VarRefs::const_iterator i;
+            Sorter sorter;
+            for( i = d_mdl->getAllFuncRefs().begin(); i != d_mdl->getAllFuncRefs().end(); ++i )
+            {
+                CodeModel::ObjRefs::const_iterator j = d_mdl->getAllObjDefs().find( i.key() );
+                if( j == d_mdl->getAllObjDefs().end() || j.value().size() <= 1 )
+                    continue;
+                sorter.insert( i.key(), i.key() );
             }
             addQueryResults(sorter);
         }

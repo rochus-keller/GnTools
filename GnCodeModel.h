@@ -114,7 +114,7 @@ namespace Gn
         static Dollars findDollars( const QByteArray& str );
         typedef QPair<QByteArray,QByteArray> PathIdentPair; // see 'gn help labels'
         static PathIdentPair extractPathIdentFromString( QByteArray str );
-
+        static bool looksLikeFilePath( const QByteArray& );
     protected:
         QString findDotFile(const QDir&);
         void clear();
