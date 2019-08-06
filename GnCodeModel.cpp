@@ -198,7 +198,7 @@ static QStringList collectBuildFiles( const QDir& dir )
         res.append( dir.absoluteFilePath(f) );
     }
 
-    files = dir.entryList( QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name );
+    files = dir.entryList( QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks, QDir::Name );
     foreach( const QString& f, files )
         res += collectBuildFiles( QDir( dir.absoluteFilePath(f) ) );
 

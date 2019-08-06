@@ -180,6 +180,12 @@ void MainWindow::showPath(const QString& path)
     }
     setWindowTitle( tr("%3 - %1 v%2").arg( qApp->applicationName() ).arg( qApp->applicationVersion() )
                     .arg( d_rootDir->text() ));
+    if( QFileInfo(path).isFile() )
+    {
+        const CodeModel::Scope* sc = d_mdl->getScope(path.toUtf8());
+        if( sc != 0 )
+            d_codeView->setCursorPosition( sc->d_st, true, true );
+    }
 }
 
 void MainWindow::showHelp()
