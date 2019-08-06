@@ -202,10 +202,12 @@ void CodeBrowser::goForward()
 void CodeBrowser::setCursorPosition(SynTree* id, bool center, bool pushLoc)
 {
     id = CodeModel::firstToken(id);
-    d_cur = id;
+    if( id == 0 )
+        return;
     const int line = id->d_tok.d_lineNr - 1;
     const int col = id->d_tok.d_colNr;
     loadFile( id->d_tok.d_sourcePath );
+    d_cur = id;
     // Qt-Koordinaten
     if( line >= 0 && line < document()->blockCount() )
     {
