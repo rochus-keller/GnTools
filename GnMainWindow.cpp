@@ -131,11 +131,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect( d_codeView, SIGNAL( cursorPositionChanged() ), this, SLOT(  onCursorPositionChanged() ) );
     connect( d_codeView, SIGNAL(sigShowFile(QByteArray)), this, SLOT(onFileChanged(QByteArray)) );
 
-    QSettings s;
-    const QVariant state = s.value( "DockState" );
-    if( !state.isNull() )
-        restoreState( state.toByteArray() );
-
     new QShortcut(tr("ALT+LEFT"),this,SLOT(onGoBack()) );
     new QShortcut(tr("ALT+RIGHT"),this,SLOT(onGoForward()) );
     new QShortcut(tr("CTRL+Q"),this,SLOT(close()) );
@@ -152,10 +147,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     s_oldHandler = qInstallMessageHandler(messageHander);
 
+    QSettings s;
+
     if( s.value("Fullscreen").toBool() )
         showFullScreen();
     else
         showMaximized();
+
+    const QVariant state = s.value( "DockState" );
+    if( !state.isNull() )
+        restoreState( state.toByteArray() );
 
     if( d_helpView->parentWidget()->isVisible() )
         d_helpView->setText(tr("Press <F1> for help"));

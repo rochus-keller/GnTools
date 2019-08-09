@@ -44,6 +44,8 @@ QString HelpEngine::getHelpFrom(const QByteArray& name)
     QString html = "<html><body>";
     foreach( const Section& s, i.value() )
     {
+        if( s.d_kind == Section::Command )
+            continue;
         html += formatMd(getSection(s.d_pos, s.d_len),s.d_kind);
     }
     html += "</body></html>";
