@@ -31,12 +31,14 @@ class QDir;
 class QModelIndex;
 class QLineEdit;
 class QComboBox;
+class QTextBrowser;
 
 namespace Gn
 {
     class ScopeTreeMdl;
     class CodeModel;
     class CodeBrowser;
+    class HelpEngine;
 
     class MainWindow : public QMainWindow
     {
@@ -53,6 +55,7 @@ namespace Gn
         void createScopeTree();
         void createXrefList();
         void createLog();
+        void createHelp();
         void createQueryList();
         void fillXrefList( const SynTree* );
         void fillXrefList( const QByteArray&, const SynTree* = 0 );
@@ -80,6 +83,7 @@ namespace Gn
         void onQuery(int);
         void onQueryDblClicked();
         void onGotoFileLine();
+        void onEscape();
 
     private:
         CodeModel* d_mdl;
@@ -94,6 +98,8 @@ namespace Gn
         QLineEdit* d_xrefSearch;
         QTreeWidget* d_queryResults;
         QComboBox* d_queries;
+        HelpEngine* d_heng;
+        QTextBrowser* d_helpView;
     };
 }
 

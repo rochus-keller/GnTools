@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>embedded_files/gn_help.md</file>
+    </qresource>
+</RCC>

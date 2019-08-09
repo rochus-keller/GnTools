@@ -21,6 +21,7 @@ The goal of this project is to build tools to better understand the GN meta-buil
 - Crossref for variable, definition and import file use, navigable by clicking on list items
 - Browsing history, forward and backward navigation
 - Fullscreen mode, movable and sizable docking windows
+- Integrated GN documentation for context sensitive help, see [screenshot](http://software.rochus-keller.info/GnViewer_Screenshot_2.png)
 
 
 ![GnViewer Screenshot](http://software.rochus-keller.info/GnViewer_Screenshot_1.png)
@@ -48,7 +49,6 @@ The repository already contains the generated files. In order to regenerate GnPa
 ### To do's
 
 - Add features as required
-- Integration of the GN documentation for context sensitive help
 - Dynamic evaluation and grey out not active code sections depending on specific argument settings
 - Alternative translator to qmake which creates true .pro and .pri files
 - Translator to cmake

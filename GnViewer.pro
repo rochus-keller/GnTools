@@ -31,7 +31,8 @@ SOURCES += \
     GnHighlighter.cpp \ 
     GnMainWindow.cpp \
     GnCodeBrowser.cpp \
-    GnScopeTreeMdl.cpp
+    GnScopeTreeMdl.cpp \
+    GnHelpEngine.cpp
 
 include( Gn.pri )
 
@@ -47,7 +48,11 @@ HEADERS += \
     GnHighlighter.h \
     GnMainWindow.h \
     GnCodeBrowser.h \
-    GnScopeTreeMdl.h
+    GnScopeTreeMdl.h \
+    GnHelpEngine.h
+
+RESOURCES += \
+    GnViewer.qrc
 
 
 

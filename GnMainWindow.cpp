@@ -23,6 +23,7 @@
 #include "GnCodeBrowser.h"
 #include "GnHighlighter.h"
 #include "GnLexer.h"
+#include "GnHelpEngine.h"
 #include <QDockWidget>
 #include <QFile>
 #include <QPainter>
@@ -43,6 +44,7 @@
 #include <QFormLayout>
 #include <QDialogButtonBox>
 #include <QComboBox>
+#include <QTextBrowser>
 using namespace Gn;
 
 Q_DECLARE_METATYPE(Gn::SynTree*)
@@ -96,6 +98,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     setWindowTitle( tr("%1 v%2").arg( qApp->applicationName() ).arg( qApp->applicationVersion() ) );
 
     d_mdl = new Gn::CodeModel(this);
+    d_heng = new HelpEngine(this);
 
     QWidget* pane = new QWidget(this);
     QVBoxLayout* vbox = new QVBoxLayout(pane);
@@ -122,6 +125,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     createScopeTree();
     createXrefList();
     createLog();
+    createHelp();
     createQueryList();
 
     connect( d_codeView, SIGNAL( cursorPositionChanged() ), this, SLOT(  onCursorPositionChanged() ) );
@@ -142,7 +146,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     new QShortcut(tr("F3"),this,SLOT(onFindAgain()) );
     new QShortcut(tr("F1"),this,SLOT(onHelp()) );
     new QShortcut(tr("CTRL+O"),this,SLOT(onOpen()) );
-    new QShortcut(tr("ESC"), d_msgLog->parentWidget(), SLOT(close()) );
+    new QShortcut(tr("ESC"), this, SLOT(onEscape()) );
     new QShortcut(tr("SHIFT+ESC"), d_msgLog, SLOT(clear()) );
     new QShortcut(tr("F11"),this,SLOT(onShowFullscreen()) );
 
@@ -152,6 +156,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         showFullScreen();
     else
         showMaximized();
+
+    if( d_helpView->parentWidget()->isVisible() )
+        d_helpView->setText(tr("Press <F1> for help"));
 }
 
 void MainWindow::showPath(const QString& path)
@@ -283,6 +290,20 @@ void MainWindow::createLog()
     d_msgLog->setLineWrapMode( QPlainTextEdit::NoWrap );
     new LogPainter(d_msgLog->document());
     dock->setWidget(d_msgLog);
+    addDockWidget( Qt::BottomDockWidgetArea, dock );
+}
+
+void MainWindow::createHelp()
+{
+    QDockWidget* dock = new QDockWidget( tr("Help"), this );
+    dock->setObjectName("Help");
+    dock->setAllowedAreas( Qt::AllDockWidgetAreas );
+    dock->setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable );
+    d_helpView = new QTextBrowser(dock);
+    QFont f = d_helpView->font();
+    f.setPointSize(f.pointSize()+1);
+    d_helpView->setFont(f);
+    dock->setWidget(d_helpView);
     addDockWidget( Qt::BottomDockWidgetArea, dock );
 }
 
@@ -615,22 +636,50 @@ void MainWindow::onFileChanged(const QByteArray& path)
 
 void MainWindow::onHelp()
 {
-    logMessage(tr("Welcome to %1 %2\nAuthor: %3\nSite: %4\nLicense: GPL\n").arg( qApp->applicationName() )
+    d_helpView->parentWidget()->show();
+    d_helpView->clear();
+    if( ( d_codeView->hasFocus() || d_xrefList->hasFocus() || d_xrefSearch->hasFocus() )
+            && d_codeView->getCur() )
+    {
+        const QString html = d_heng->getHelpFrom( d_codeView->getCur()->d_tok.d_val );
+        if( !html.isEmpty() )
+            d_helpView->setHtml( html );
+        else
+        {
+            QString what;
+            switch( d_codeView->getCur()->d_tok.d_type )
+            {
+            case Tok_string:
+                what = QString::fromUtf8(d_codeView->getCur()->d_tok.d_val);
+                break;
+            case Tok_identifier:
+                what = QString("'%1'").arg(d_codeView->getCur()->d_tok.d_val.constData());
+                break;
+            default:
+                what = QString::fromUtf8(SynTree::rToStr(d_codeView->getCur()->d_tok.d_type));
+                break;
+            }
+            d_helpView->setHtml(tr("No help for %1").arg(what) );
+        }
+    }else
+    {
+        d_helpView->append(tr("Welcome to %1 %2\nAuthor: %3\nSite: %4\nLicense: GPL\n").arg( qApp->applicationName() )
                .arg( qApp->applicationVersion() ).arg( qApp->organizationName() ).arg( qApp->organizationDomain() ));
-    logMessage(tr("Shortcuts:"));
-    logMessage(tr("CTRL+O to open the directory containing the GN files") );
-    logMessage(tr("Double-click on an item in the File list to show source") );
-    logMessage(tr("CTRL+L to go to a specific line in current file") );
-    logMessage(tr("CTRL+F to find a string in the current file") );
-    logMessage(tr("CTRL+G or F3 to find another match in the current file") );
-    logMessage(tr("CTRL-click on the strings or idents in the source to navigate") );
-    logMessage(tr("ALT+LEFT to move backwards in the navigation history") );
-    logMessage(tr("ALT+RIGHT to move forward in the navigation history") );
-    logMessage(tr("ESC to close Message Log") );
-    logMessage(tr("SHIFT+ESC to clear Message Log") );
-    logMessage(tr("F1 to print help message to log") );
-    logMessage(tr("F11 to toggle fullscreen mode") );
-    logMessage(tr("CTRL+Q or ALT+F4 to close the application") );
+        d_helpView->append(tr("Shortcuts:"));
+        d_helpView->append(tr("CTRL+O to open the directory containing the GN files") );
+        d_helpView->append(tr("Double-click on an item in the File list to show source") );
+        d_helpView->append(tr("CTRL+L to go to a specific line in current file") );
+        d_helpView->append(tr("CTRL+F to find a string in the current file") );
+        d_helpView->append(tr("CTRL+G or F3 to find another match in the current file") );
+        d_helpView->append(tr("CTRL-click on the strings or idents in the source to navigate") );
+        d_helpView->append(tr("ALT+LEFT to move backwards in the navigation history") );
+        d_helpView->append(tr("ALT+RIGHT to move forward in the navigation history") );
+        d_helpView->append(tr("ESC to close Message Log and Help docking windows") );
+        d_helpView->append(tr("SHIFT+ESC to clear Message Log") );
+        d_helpView->append(tr("F1 to get context sensitive help on GN language and shortcuts") );
+        d_helpView->append(tr("F11 to toggle fullscreen mode") );
+        d_helpView->append(tr("CTRL+Q or ALT+F4 to close the application") );
+    }
 }
 
 void MainWindow::onXrefSearch()
@@ -819,5 +868,11 @@ void MainWindow::onGotoFileLine()
         d_codeView->setCursorPosition(sc->d_st,true,true);
     }else
         d_codeView->setCursorPosition( path, row-1, col-1, true );
+}
+
+void MainWindow::onEscape()
+{
+    d_msgLog->parentWidget()->close();
+    d_helpView->parentWidget()->close();
 }
 
