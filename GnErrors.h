@@ -28,7 +28,7 @@
 
 namespace Gn
 {
-    class SynTree;
+    struct SynTree;
 
     class Errors : public QObject
     {

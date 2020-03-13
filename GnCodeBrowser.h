@@ -24,8 +24,8 @@
 
 namespace Gn
 {
-    class SynTree;
-    class CodeModel;
+    struct SynTree;
+    class  CodeModel;
 
     class CodeBrowser : public QPlainTextEdit
     {

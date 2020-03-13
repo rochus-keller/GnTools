@@ -100,7 +100,7 @@ void HelpEngine::parseFile()
     }
 }
 
-QString HelpEngine::formatMd(const QByteArray& str, int kind)
+QString HelpEngine::formatMd(const QByteArray& str, int /*kind*/)
 {
     QBuffer buf;
     buf.setData(str);
