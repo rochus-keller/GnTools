@@ -253,7 +253,7 @@ QString CodeModel::calcPath(const QByteArray& path, const QByteArray& ref ) cons
     if( tmp.startsWith("//") )
         tmp = d_sourceRoot.absoluteFilePath(tmp.mid(2));
     else if( tmp.startsWith("/"))
-        tmp = tmp; // NOP, absolute path
+        ((void)0); // NOP, absolute path
     else if( !tmp.isEmpty() && !ref.isEmpty() )
         tmp = QFileInfo(QString::fromUtf8(ref)).absoluteDir().absoluteFilePath(tmp);
     else if( !tmp.isEmpty() )
@@ -433,7 +433,7 @@ void CodeModel::clear()
     d_declaredArgs.clear();
 }
 
-CodeModel::Scope* CodeModel::parseFile(const QString& path, bool viaImport)
+CodeModel::Scope* CodeModel::parseFile(const QString& path, bool /*viaImport*/)
 {
     const QByteArray pathSym = Lexer::getSymbol(path.toUtf8());
     Files::iterator i = d_files.find(pathSym.constData());
