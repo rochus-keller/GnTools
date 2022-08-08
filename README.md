@@ -21,15 +21,15 @@ The goal of this project is to build tools to better understand the GN meta-buil
 - Crossref for variable, definition and import file use, navigable by clicking on list items
 - Browsing history, forward and backward navigation
 - Fullscreen mode, movable and sizable docking windows
-- Integrated GN documentation for context sensitive help, see [screenshot](http://software.rochus-keller.info/GnViewer_Screenshot_2.png)
+- Integrated GN documentation for context sensitive help, see [screenshot](http://software.rochus-keller.ch/GnViewer_Screenshot_2.png)
 
 
-![GnViewer Screenshot](http://software.rochus-keller.info/GnViewer_Screenshot_1.png)
+![GnViewer Screenshot](http://software.rochus-keller.ch/GnViewer_Screenshot_1.png)
 
 
 ### Binary version
 
-Here is a binary version of GnViewer for Linux x86: http://software.rochus-keller.info/GnViewer_linux_x86.tar.gz
+Here is a binary version of GnViewer for Linux x86: http://software.rochus-keller.ch/GnViewer_linux_x86.tar.gz
 Just download, unpack and run it; no installer is needed. The Qt core libraries have to be separately installed. The binary was built using Qt 5.4.
 
 ### Build Steps
