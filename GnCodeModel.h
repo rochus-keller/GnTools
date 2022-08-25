@@ -34,8 +34,8 @@
 
 namespace Gn
 {
-    class Errors;
-    class SynTree;
+    class  Errors;
+    struct SynTree;
 
     class CodeModel : public QObject
     {
